@@ -37,6 +37,8 @@ dependencies:
   shared_preferences: ^2.5.3
   image_picker: ^1.2.1
   file_picker: ^11.0.3
+  pdf: ^3.11.3
+  printing: ^5.14.3
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +67,7 @@ flutter:
   assets:
     - images/LogoProj.webp
     - images/loginpic.jpg
+    - assets/fonts/arial.ttf
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

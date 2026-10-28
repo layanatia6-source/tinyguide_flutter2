@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ReportGenerationScreen.dart';
+import 'SavedReportsScreen.dart';
 
 class ReportsScreen extends StatelessWidget {
   final String childName;
@@ -17,7 +18,6 @@ class ReportsScreen extends StatelessWidget {
 
   int calculateAge(DateTime dateOfBirth) {
     final DateTime today = DateTime.now();
-
     int age = today.year - dateOfBirth.year;
 
     if (today.month < dateOfBirth.month ||
@@ -33,7 +33,6 @@ class ReportsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final bool isDark = theme.brightness == Brightness.dark;
-
     final Color primaryColor = theme.primaryColor;
 
     final Color textColor = isDark
@@ -82,12 +81,9 @@ class ReportsScreen extends StatelessWidget {
                       maxWidth: 760,
                     ),
                     child: Column(
-                      crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // =========================
                         // Header
-                        // =========================
                         SizedBox(
                           height: 48,
                           child: Stack(
@@ -98,32 +94,27 @@ class ReportsScreen extends StatelessWidget {
                                   'التقارير',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize:
-                                    isTablet ? 31 : 27,
+                                    fontSize: isTablet ? 31 : 27,
                                     fontWeight: FontWeight.bold,
                                     color: textColor,
                                   ),
                                 ),
                               ),
-
-                              // سهم الرجوع بدون خلفية أو Border
                               Align(
-                                alignment: AlignmentDirectional
-                                    .centerStart,
+                                alignment:
+                                AlignmentDirectional.centerStart,
                                 child: IconButton(
                                   onPressed: () {
                                     Navigator.pop(context);
                                   },
                                   padding: EdgeInsets.zero,
-                                  constraints:
-                                  const BoxConstraints(
+                                  constraints: const BoxConstraints(
                                     minWidth: 44,
                                     minHeight: 44,
                                   ),
                                   splashRadius: 22,
                                   icon: Icon(
-                                    Icons
-                                        .arrow_back_ios_new_rounded,
+                                    Icons.arrow_back_ios_new_rounded,
                                     color: textColor,
                                     size: 22,
                                   ),
@@ -149,11 +140,9 @@ class ReportsScreen extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 26),
 
-                        // =========================
                         // Child Profile Card
-                        // =========================
                         Container(
                           width: double.infinity,
                           padding: EdgeInsets.all(
@@ -161,20 +150,15 @@ class ReportsScreen extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: cardColor,
-                            borderRadius:
-                            BorderRadius.circular(22),
-                            border: Border.all(
-                              color: borderColor,
-                            ),
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(color: borderColor),
                             boxShadow: isDark
                                 ? []
                                 : [
                               BoxShadow(
-                                color: Colors.black
-                                    .withOpacity(0.04),
+                                color: Colors.black.withOpacity(0.04),
                                 blurRadius: 12,
-                                offset:
-                                const Offset(0, 5),
+                                offset: const Offset(0, 5),
                               ),
                             ],
                           ),
@@ -182,57 +166,38 @@ class ReportsScreen extends StatelessWidget {
                               ? Column(
                             children: [
                               _buildChildAvatar(
-                                primaryColor:
-                                primaryColor,
+                                primaryColor: primaryColor,
                                 size: 82,
                               ),
-
-                              const SizedBox(
-                                height: 14,
-                              ),
-
+                              const SizedBox(height: 14),
                               Text(
                                 childName,
-                                textAlign:
-                                TextAlign.center,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 21,
-                                  fontWeight:
-                                  FontWeight.bold,
+                                  fontWeight: FontWeight.bold,
                                   color: textColor,
                                 ),
                               ),
-
-                              const SizedBox(
-                                height: 10,
-                              ),
-
+                              const SizedBox(height: 10),
                               Wrap(
-                                alignment:
-                                WrapAlignment.center,
+                                alignment: WrapAlignment.center,
                                 spacing: 14,
                                 runSpacing: 8,
                                 children: [
                                   _childInfo(
-                                    icon: Icons
-                                        .calendar_month_outlined,
-                                    text:
-                                    '$childAge سنوات',
-                                    primaryColor:
-                                    primaryColor,
-                                    textColor:
-                                    textColor,
+                                    icon: Icons.calendar_month_outlined,
+                                    text: '$childAge سنوات',
+                                    primaryColor: primaryColor,
+                                    textColor: textColor,
                                   ),
                                   _childInfo(
-                                    icon: gender ==
-                                        'بنت'
+                                    icon: gender == 'بنت'
                                         ? Icons.female
                                         : Icons.male,
                                     text: gender,
-                                    primaryColor:
-                                    primaryColor,
-                                    textColor:
-                                    textColor,
+                                    primaryColor: primaryColor,
+                                    textColor: textColor,
                                   ),
                                 ],
                               ),
@@ -241,43 +206,24 @@ class ReportsScreen extends StatelessWidget {
                               : Row(
                             children: [
                               _buildChildAvatar(
-                                primaryColor:
-                                primaryColor,
-                                size: isTablet
-                                    ? 95
-                                    : 86,
+                                primaryColor: primaryColor,
+                                size: isTablet ? 95 : 86,
                               ),
-
-                              const SizedBox(
-                                width: 16,
-                              ),
-
+                              const SizedBox(width: 16),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment:
-                                  CrossAxisAlignment
-                                      .start,
+                                  CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       childName,
-                                      style:
-                                      TextStyle(
-                                        fontSize:
-                                        isTablet
-                                            ? 24
-                                            : 21,
-                                        fontWeight:
-                                        FontWeight
-                                            .bold,
-                                        color:
-                                        textColor,
+                                      style: TextStyle(
+                                        fontSize: isTablet ? 24 : 21,
+                                        fontWeight: FontWeight.bold,
+                                        color: textColor,
                                       ),
                                     ),
-
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-
+                                    const SizedBox(height: 10),
                                     Wrap(
                                       spacing: 14,
                                       runSpacing: 8,
@@ -285,26 +231,17 @@ class ReportsScreen extends StatelessWidget {
                                         _childInfo(
                                           icon: Icons
                                               .calendar_month_outlined,
-                                          text:
-                                          '$childAge سنوات',
-                                          primaryColor:
-                                          primaryColor,
-                                          textColor:
-                                          textColor,
+                                          text: '$childAge سنوات',
+                                          primaryColor: primaryColor,
+                                          textColor: textColor,
                                         ),
                                         _childInfo(
-                                          icon: gender ==
-                                              'بنت'
-                                              ? Icons
-                                              .female
-                                              : Icons
-                                              .male,
-                                          text:
-                                          gender,
-                                          primaryColor:
-                                          primaryColor,
-                                          textColor:
-                                          textColor,
+                                          icon: gender == 'بنت'
+                                              ? Icons.female
+                                              : Icons.male,
+                                          text: gender,
+                                          primaryColor: primaryColor,
+                                          textColor: textColor,
                                         ),
                                       ],
                                     ),
@@ -315,45 +252,19 @@ class ReportsScreen extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 24),
 
-                        // =========================
-                        // Overview
-                        // =========================
-                        Container(
-                          width: double.infinity,
-                          padding:
-                          const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius:
-                            BorderRadius.circular(20),
-                            border: Border.all(
-                              color: borderColor,
-                            ),
-                          ),
+                        // Reports Overview
+                        _sectionCard(
+                          cardColor: cardColor,
+                          borderColor: borderColor,
                           child: Row(
                             children: [
-                              Container(
-                                width: 58,
-                                height: 58,
-                                decoration: BoxDecoration(
-                                  color: primaryColor
-                                      .withOpacity(0.12),
-                                  borderRadius:
-                                  BorderRadius.circular(
-                                    16,
-                                  ),
-                                ),
-                                child: Icon(
-                                  Icons.bar_chart_rounded,
-                                  color: primaryColor,
-                                  size: 32,
-                                ),
+                              _iconContainer(
+                                icon: Icons.bar_chart_rounded,
+                                primaryColor: primaryColor,
                               ),
-
                               const SizedBox(width: 14),
-
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment:
@@ -363,21 +274,17 @@ class ReportsScreen extends StatelessWidget {
                                       'نظرة عامة على التقارير',
                                       style: TextStyle(
                                         fontSize: 18,
-                                        fontWeight:
-                                        FontWeight.bold,
+                                        fontWeight: FontWeight.bold,
                                         color: textColor,
                                       ),
                                     ),
-
                                     const SizedBox(height: 7),
-
                                     Text(
                                       'يمكنك إنشاء ومراجعة تقارير الصحة والمتابعة للطفل.',
                                       style: TextStyle(
                                         fontSize: 13,
                                         height: 1.6,
-                                        color:
-                                        secondaryTextColor,
+                                        color: secondaryTextColor,
                                       ),
                                     ),
                                   ],
@@ -387,11 +294,9 @@ class ReportsScreen extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
 
-                        // =========================
-                        // Generate Report Button
-                        // =========================
+                        // Create Report Button
                         SizedBox(
                           width: double.infinity,
                           height: 56,
@@ -407,9 +312,7 @@ class ReportsScreen extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(
-                              Icons.add_chart_rounded,
-                            ),
+                            icon: const Icon(Icons.add_chart_rounded),
                             label: const Text(
                               'إنشاء تقرير',
                               style: TextStyle(
@@ -420,43 +323,73 @@ class ReportsScreen extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 36),
+                        const SizedBox(height: 28),
 
-                        // =========================
-                        // Small Note
-                        // =========================
-                        Container(
-                          width: double.infinity,
-                          padding:
-                          const EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: primaryColor
-                                .withOpacity(
-                              isDark ? 0.10 : 0.08,
-                            ),
-                            borderRadius:
-                            BorderRadius.circular(15),
-                          ),
-                          child: Row(
+                        // Saved Reports Section
+                        _sectionCard(
+                          cardColor: cardColor,
+                          borderColor: borderColor,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                Icons.info_outline_rounded,
-                                color: primaryColor,
-                                size: 20,
+                              Row(
+                                children: [
+                                  _iconContainer(
+                                    icon: Icons.folder_copy_outlined,
+                                    primaryColor: primaryColor,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'التقارير المحفوظة',
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold,
+                                            color: textColor,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          'عرض التقارير المحفوظة وفتحها وتنزيلها.',
+                                          style: TextStyle(
+                                            fontSize: 12.5,
+                                            height: 1.5,
+                                            color: secondaryTextColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-
-                              const SizedBox(width: 8),
-
-                              Expanded(
-                                child: Text(
-                                  'اختاري نوع التقرير والفترة المناسبة من صفحة إنشاء التقرير.',
-                                  textAlign:
-                                  TextAlign.start,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    height: 1.6,
-                                    color:
-                                    secondaryTextColor,
+                              const SizedBox(height: 18),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: OutlinedButton.icon(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            SavedReportsScreen(
+                                              childName: childName,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.folder_open_outlined,
+                                  ),
+                                  label: const Text(
+                                    'عرض التقارير المحفوظة',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -464,7 +397,42 @@ class ReportsScreen extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 20),
+
+                        // Information Note
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: primaryColor.withOpacity(
+                              isDark ? 0.10 : 0.08,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.info_outline_rounded,
+                                color: primaryColor,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'اختاري نوع التقرير والفترة المناسبة. ستُربط التقارير المحفوظة ببيانات Laravel عند تنفيذ مرحلة الربط.',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    height: 1.6,
+                                    color: secondaryTextColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -477,9 +445,6 @@ class ReportsScreen extends StatelessWidget {
     );
   }
 
-  // =========================
-  // Child Avatar
-  // =========================
   Widget _buildChildAvatar({
     required Color primaryColor,
     required double size,
@@ -507,14 +472,18 @@ class ReportsScreen extends StatelessWidget {
         child: Image.asset(
           childImagePath!,
           fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(
+              Icons.child_care_rounded,
+              size: size * 0.58,
+              color: primaryColor,
+            );
+          },
         ),
       ),
     );
   }
 
-  // =========================
-  // Child Info
-  // =========================
   Widget _childInfo({
     required IconData icon,
     required String text,
@@ -524,14 +493,8 @@ class ReportsScreen extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 18,
-          color: primaryColor,
-        ),
-
+        Icon(icon, size: 18, color: primaryColor),
         const SizedBox(width: 5),
-
         Text(
           text,
           style: TextStyle(
@@ -541,6 +504,42 @@ class ReportsScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _sectionCard({
+    required Color cardColor,
+    required Color borderColor,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _iconContainer({
+    required IconData icon,
+    required Color primaryColor,
+  }) {
+    return Container(
+      width: 58,
+      height: 58,
+      decoration: BoxDecoration(
+        color: primaryColor.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Icon(
+        icon,
+        color: primaryColor,
+        size: 30,
+      ),
     );
   }
 }

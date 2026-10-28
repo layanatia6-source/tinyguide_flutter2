@@ -854,7 +854,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           fieldColor: fieldColor,
         ),
         hint: _RightText(
-          'اسم النشاط',
+          'نوع النشاط',
           isHint: true,
           textColor: textColor,
           hintColor: hintColor,

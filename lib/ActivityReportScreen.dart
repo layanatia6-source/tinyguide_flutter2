@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class ActivityReportScreen extends StatelessWidget {
   final String childName;
@@ -15,16 +19,220 @@ class ActivityReportScreen extends StatelessWidget {
   String formatDate(DateTime date) {
     final String day = date.day.toString().padLeft(2, '0');
     final String month = date.month.toString().padLeft(2, '0');
-
     return '$day/$month/${date.year}';
   }
 
+  void _showMessage(BuildContext context, String message) {
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+  Future<void> _exportPdf(BuildContext context) async {
+    try {
+      _showMessage(context, 'جارٍ تجهيز ملف PDF...');
+
+      final fontData =
+      await rootBundle.load('assets/fonts/arial.ttf');
+
+      final arabicFont = pw.Font.ttf(fontData);
+
+      final pdf = pw.Document(
+        theme: pw.ThemeData.withFont(
+          base: arabicFont,
+          bold: arabicFont,
+        ),
+      );
+
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(40),
+          textDirection: pw.TextDirection.rtl,
+          build: (pw.Context pdfContext) {
+            return [
+              pw.Center(
+                child: pw.Text(
+                  'TinyGuide',
+                  style: pw.TextStyle(
+                    fontSize: 25,
+                    fontWeight: pw.FontWeight.bold,
+                    color: const PdfColor(0.20, 0.66, 0.64),
+                  ),
+                ),
+              ),
+
+              pw.SizedBox(height: 12),
+
+              pw.Center(
+                child: pw.Text(
+                  'تقرير النشاط',
+                  style: pw.TextStyle(
+                    fontSize: 20,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              pw.SizedBox(height: 25),
+
+              pw.Text(
+                'اسم الطفل: $childName',
+                style: const pw.TextStyle(fontSize: 13),
+              ),
+
+              pw.SizedBox(height: 12),
+
+              pw.Text(
+                'تاريخ البداية: ${formatDate(startDate)}',
+                style: const pw.TextStyle(fontSize: 13),
+              ),
+
+              pw.SizedBox(height: 12),
+
+              pw.Text(
+                'تاريخ النهاية: ${formatDate(endDate)}',
+                style: const pw.TextStyle(fontSize: 13),
+              ),
+
+              pw.SizedBox(height: 12),
+
+              pw.Text(
+                'تاريخ إنشاء التقرير: '
+                    '${formatDate(DateTime.now())}',
+                style: const pw.TextStyle(fontSize: 13),
+              ),
+
+              pw.SizedBox(height: 25),
+
+              pw.Container(
+                width: double.infinity,
+                padding: const pw.EdgeInsets.all(15),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(
+                    color: const PdfColor(0.82, 0.88, 0.88),
+                  ),
+                  borderRadius: pw.BorderRadius.circular(10),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment:
+                  pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'ملخص النشاط',
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.bold,
+                        color: const PdfColor(0.20, 0.66, 0.64),
+                      ),
+                    ),
+
+                    pw.SizedBox(height: 12),
+
+                    pw.Text(
+                      'لا توجد بيانات نشاط فعلية متاحة للعرض حاليًا.',
+                      style: const pw.TextStyle(
+                        fontSize: 12,
+                        lineSpacing: 4,
+                      ),
+                    ),
+
+                    pw.SizedBox(height: 12),
+
+                    pw.Text(
+                      'ستظهر أنواع الأنشطة ومددها وأيام تسجيلها '
+                          'بعد ربط التقرير بمصدر البيانات وتوفر '
+                          'السجلات الفعلية للطفل خلال الفترة المحددة.',
+                      style: const pw.TextStyle(
+                        fontSize: 12,
+                        lineSpacing: 4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              pw.SizedBox(height: 20),
+
+              pw.Container(
+                width: double.infinity,
+                padding: const pw.EdgeInsets.all(12),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(
+                    color: const PdfColor(0.82, 0.88, 0.88),
+                  ),
+                  borderRadius: pw.BorderRadius.circular(10),
+                ),
+                child: pw.Text(
+                  'تنبيه: هذا التقرير مخصص للمتابعة والتنظيم فقط، '
+                      'ولا يُعد تقييمًا طبيًا لمستوى نشاط الطفل.',
+                  style: const pw.TextStyle(
+                    fontSize: 11,
+                    lineSpacing: 4,
+                  ),
+                ),
+              ),
+
+              pw.SizedBox(height: 25),
+
+              pw.Divider(
+                color: const PdfColor(0.82, 0.88, 0.88),
+              ),
+
+              pw.SizedBox(height: 8),
+
+              pw.Center(
+                child: pw.Text(
+                  'تم إنشاء هذا التقرير بواسطة TinyGuide',
+                  style: const pw.TextStyle(
+                    fontSize: 10,
+                  ),
+                ),
+              ),
+            ];
+          },
+        ),
+      );
+
+      await Printing.layoutPdf(
+        name: 'TinyGuide_Activity_Report.pdf',
+        format: PdfPageFormat.a4,
+        onLayout: (PdfPageFormat format) async {
+          return pdf.save();
+        },
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+
+      _showMessage(
+        context,
+        'تعذر إنشاء ملف PDF. حاولي مرة أخرى.',
+      );
+
+      debugPrint('Activity PDF export error: $error');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+
     final Color primaryColor = theme.primaryColor;
-    final Color textColor = theme.colorScheme.onSurface;
-    final Color secondaryTextColor = textColor.withOpacity(0.60);
+    final Color textColor =
+    isDark ? Colors.white : const Color(0xff2C4A5A);
+    final Color secondaryTextColor =
+    isDark ? Colors.white.withOpacity(0.60) : const Color(0xff78909A);
+    final Color cardColor =
+    isDark ? const Color(0xff1D292D) : Colors.white;
+    final Color borderColor =
+    isDark ? Colors.white.withOpacity(0.12) : const Color(0xffE2EEEE);
 
     return Scaffold(
       body: SafeArea(
@@ -32,11 +240,9 @@ class ActivityReportScreen extends StatelessWidget {
           textDirection: TextDirection.rtl,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final double width = constraints.maxWidth;
-              final bool isVerySmall = width < 390;
-              final bool isTablet = width >= 600;
-
-              final double horizontalPadding = isVerySmall
+              final bool isTablet = constraints.maxWidth >= 600;
+              final double horizontalPadding =
+              constraints.maxWidth < 390
                   ? 14
                   : isTablet
                   ? 36
@@ -54,9 +260,7 @@ class ActivityReportScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // =========================
                         // Header
-                        // =========================
                         SizedBox(
                           height: 48,
                           child: Stack(
@@ -73,40 +277,15 @@ class ActivityReportScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-
                               Align(
                                 alignment:
                                 AlignmentDirectional.centerStart,
-                                child: Material(
-                                  color: Colors.white,
-                                  borderRadius:
-                                  BorderRadius.circular(12),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                    },
-                                    borderRadius:
-                                    BorderRadius.circular(12),
-                                    child: Container(
-                                      width: 44,
-                                      height: 44,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius:
-                                        BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: textColor
-                                              .withOpacity(0.12),
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        Icons
-                                            .arrow_back_ios_new_rounded,
-                                        size: 19,
-                                        color: textColor,
-                                      ),
-                                    ),
+                                child: IconButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  icon: Icon(
+                                    Icons.arrow_back_ios_new_rounded,
+                                    color: textColor,
+                                    size: 22,
                                   ),
                                 ),
                               ),
@@ -114,55 +293,27 @@ class ActivityReportScreen extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
 
-                        Padding(
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(
-                            'متابعة نشاط $childName خلال الفترة المحددة',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: secondaryTextColor,
-                              fontWeight: FontWeight.w500,
-                            ),
+                        Text(
+                          'متابعة نشاط $childName خلال الفترة المحددة',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: secondaryTextColor,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
 
                         const SizedBox(height: 24),
 
-                        // =========================
-                        // Period
-                        // =========================
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: textColor.withOpacity(0.10),
-                            ),
-                          ),
-                          child: Row(
+                        // Report period
+                        _card(
+                          cardColor,
+                          borderColor,
+                          Row(
                             children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color:
-                                  primaryColor.withOpacity(0.10),
-                                  borderRadius:
-                                  BorderRadius.circular(14),
-                                ),
-                                child: Icon(
-                                  Icons.date_range_rounded,
-                                  color: primaryColor,
-                                ),
-                              ),
-
+                              _icon(Icons.date_range_rounded, primaryColor),
                               const SizedBox(width: 12),
-
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment:
@@ -172,20 +323,16 @@ class ActivityReportScreen extends StatelessWidget {
                                       'فترة التقرير',
                                       style: TextStyle(
                                         fontSize: 15,
-                                        fontWeight:
-                                        FontWeight.bold,
+                                        fontWeight: FontWeight.bold,
                                         color: textColor,
                                       ),
                                     ),
-
                                     const SizedBox(height: 5),
-
                                     Text(
                                       '${formatDate(startDate)} - ${formatDate(endDate)}',
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color:
-                                        secondaryTextColor,
+                                        color: secondaryTextColor,
                                       ),
                                     ),
                                   ],
@@ -208,84 +355,46 @@ class ActivityReportScreen extends StatelessWidget {
 
                         const SizedBox(height: 14),
 
-                        // =========================
-                        // Summary
-                        // =========================
-                        if (isVerySmall)
-                          Column(
-                            children: [
-                              _summaryCard(
-                                context,
-                                icon:
-                                Icons.directions_run_rounded,
-                                title: 'عدد الأنشطة',
-                                value: '8',
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              _summaryCard(
-                                context,
-                                icon: Icons.timer_outlined,
-                                title: 'إجمالي المدة',
-                                value: '240 دقيقة',
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              _summaryCard(
-                                context,
-                                icon: Icons
-                                    .calendar_today_outlined,
-                                title: 'أيام النشاط',
-                                value: '5 أيام',
-                              ),
-                            ],
-                          )
-                        else
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _summaryCard(
-                                  context,
-                                  icon: Icons
-                                      .directions_run_rounded,
-                                  title: 'عدد الأنشطة',
-                                  value: '8',
+                        // Empty state
+                        _card(
+                          cardColor,
+                          borderColor,
+                          SizedBox(
+                            width: double.infinity,
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.directions_run_rounded,
+                                  size: 52,
+                                  color: primaryColor,
                                 ),
-                              ),
-
-                              const SizedBox(width: 10),
-
-                              Expanded(
-                                child: _summaryCard(
-                                  context,
-                                  icon:
-                                  Icons.timer_outlined,
-                                  title: 'إجمالي المدة',
-                                  value: '240 دقيقة',
+                                const SizedBox(height: 12),
+                                Text(
+                                  'لا توجد بيانات نشاط للعرض',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: textColor,
+                                  ),
                                 ),
-                              ),
-
-                              const SizedBox(width: 10),
-
-                              Expanded(
-                                child: _summaryCard(
-                                  context,
-                                  icon: Icons
-                                      .calendar_today_outlined,
-                                  title: 'أيام النشاط',
-                                  value: '5 أيام',
+                                const SizedBox(height: 8),
+                                Text(
+                                  'ستظهر أعداد الأنشطة ومددها وتفاصيلها بعد جلب السجلات الفعلية للطفل خلال الفترة المحددة.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    height: 1.7,
+                                    color: secondaryTextColor,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                        ),
 
                         const SizedBox(height: 24),
 
-                        // =========================
-                        // Activity Details
-                        // =========================
                         Text(
                           'تفاصيل النشاط',
                           style: TextStyle(
@@ -297,74 +406,121 @@ class ActivityReportScreen extends StatelessWidget {
 
                         const SizedBox(height: 14),
 
-                        _activityItem(
-                          context,
-                          icon: Icons.directions_walk_rounded,
-                          title: 'المشي',
+                        _detailCard(
+                          icon: Icons.list_alt_rounded,
+                          title: 'الأنشطة المسجلة',
                           description:
-                          'تم تسجيل نشاط المشي ضمن الفترة المحددة.',
+                          'ستظهر أنواع الأنشطة التي تم تسجيلها للطفل خلال الفترة المحددة.',
+                          primaryColor: primaryColor,
+                          cardColor: cardColor,
+                          borderColor: borderColor,
+                          textColor: textColor,
+                          secondaryTextColor: secondaryTextColor,
                         ),
 
                         const SizedBox(height: 12),
 
-                        _activityItem(
-                          context,
-                          icon: Icons.directions_run_rounded,
-                          title: 'الجري',
+                        _detailCard(
+                          icon: Icons.timer_outlined,
+                          title: 'مدة النشاط',
                           description:
-                          'تم تسجيل نشاط الجري ضمن الفترة المحددة.',
+                          'ستظهر مدد الأنشطة المسجلة عند توفر البيانات.',
+                          primaryColor: primaryColor,
+                          cardColor: cardColor,
+                          borderColor: borderColor,
+                          textColor: textColor,
+                          secondaryTextColor: secondaryTextColor,
                         ),
 
                         const SizedBox(height: 12),
 
-                        _activityItem(
-                          context,
-                          icon: Icons.sports_soccer_rounded,
-                          title: 'نشاط رياضي',
+                        _detailCard(
+                          icon: Icons.calendar_today_outlined,
+                          title: 'أيام النشاط',
                           description:
-                          'يمكن عرض الأنشطة الرياضية المسجلة للطفل هنا.',
+                          'سيتم عرض الأيام التي تحتوي على سجلات نشاط فعلية.',
+                          primaryColor: primaryColor,
+                          cardColor: cardColor,
+                          borderColor: borderColor,
+                          textColor: textColor,
+                          secondaryTextColor: secondaryTextColor,
                         ),
 
                         const SizedBox(height: 24),
 
-                        // =========================
-                        // Educational Note
-                        // =========================
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color:
-                            primaryColor.withOpacity(0.08),
-                            borderRadius:
-                            BorderRadius.circular(15),
-                          ),
-                          child: Row(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        // Educational note
+                        _card(
+                          cardColor,
+                          borderColor,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Icon(
                                 Icons.info_outline_rounded,
                                 color: primaryColor,
                                 size: 22,
                               ),
-
-                              const SizedBox(width: 8),
-
+                              const SizedBox(width: 9),
                               Expanded(
                                 child: Text(
-                                  'هذا التقرير مخصص للمتابعة والتنظيم فقط، ولا يعتبر تقييمًا طبيًا لمستوى نشاط الطفل.',
+                                  'هذا التقرير مخصص للمتابعة والتنظيم فقط، ولا يُعد تقييمًا طبيًا لمستوى نشاط الطفل.',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    height: 1.6,
-                                    color:
-                                    secondaryTextColor,
+                                    height: 1.7,
+                                    color: secondaryTextColor,
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
+
+                        const SizedBox(height: 24),
+
+                        // Save report - pending API integration
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              _showMessage(
+                                context,
+                                'حفظ التقرير سيتاح بعد ربط Laravel API.',
+                              );
+                            },
+                            icon: const Icon(Icons.save_outlined),
+                            label: const Text(
+                              'حفظ التقرير',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // PDF export - not implemented yet
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: OutlinedButton.icon(
+                            onPressed: () => _exportPdf(context),
+                            icon: const Icon(
+                              Icons.picture_as_pdf_outlined,
+                            ),
+                            label: const Text(
+                              'تنزيل PDF',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
 
                         const SizedBox(height: 20),
                       ],
@@ -379,114 +535,49 @@ class ActivityReportScreen extends StatelessWidget {
     );
   }
 
-  // =========================
-  // Summary Card
-  // =========================
-  Widget _summaryCard(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required String value,
-      }) {
-    final ThemeData theme = Theme.of(context);
-    final Color primaryColor = theme.primaryColor;
-    final Color textColor = theme.colorScheme.onSurface;
-
+  Widget _card(Color cardColor, Color borderColor, Widget child) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(17),
-        border: Border.all(
-          color: textColor.withOpacity(0.10),
-        ),
+        color: cardColor,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: borderColor),
       ),
-      child: Column(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(
-              icon,
-              color: primaryColor,
-              size: 24,
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          Text(
-            value,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: textColor,
-            ),
-          ),
-
-          const SizedBox(height: 4),
-
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: textColor.withOpacity(0.60),
-            ),
-          ),
-        ],
-      ),
+      child: child,
     );
   }
 
-  // =========================
-  // Activity Item
-  // =========================
-  Widget _activityItem(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required String description,
-      }) {
-    final ThemeData theme = Theme.of(context);
-    final Color primaryColor = theme.primaryColor;
-    final Color textColor = theme.colorScheme.onSurface;
-
+  Widget _icon(IconData icon, Color primaryColor) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(15),
+      width: 48,
+      height: 48,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(17),
-        border: Border.all(
-          color: textColor.withOpacity(0.10),
-        ),
+        color: primaryColor.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(14),
       ),
-      child: Row(
+      child: Icon(icon, color: primaryColor, size: 25),
+    );
+  }
+
+  Widget _detailCard({
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color primaryColor,
+    required Color cardColor,
+    required Color borderColor,
+    required Color textColor,
+    required Color secondaryTextColor,
+  }) {
+    return _card(
+      cardColor,
+      borderColor,
+      Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(
-              icon,
-              color: primaryColor,
-              size: 24,
-            ),
-          ),
-
+          _icon(icon, primaryColor),
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,16 +590,13 @@ class ActivityReportScreen extends StatelessWidget {
                     color: textColor,
                   ),
                 ),
-
-                const SizedBox(height: 5),
-
+                const SizedBox(height: 6),
                 Text(
                   description,
                   style: TextStyle(
                     fontSize: 12.5,
-                    height: 1.6,
-                    color:
-                    textColor.withOpacity(0.60),
+                    height: 1.7,
+                    color: secondaryTextColor,
                   ),
                 ),
               ],

@@ -15,16 +15,35 @@ class GrowthReportScreen extends StatelessWidget {
   String formatDate(DateTime date) {
     final String day = date.day.toString().padLeft(2, '0');
     final String month = date.month.toString().padLeft(2, '0');
-
     return '$day/$month/${date.year}';
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
     final Color primaryColor = theme.primaryColor;
-    final Color textColor = theme.colorScheme.onSurface;
-    final Color secondaryTextColor = textColor.withOpacity(0.60);
+    final Color textColor =
+    isDark ? Colors.white : const Color(0xff2C4A5A);
+    final Color secondaryTextColor =
+    isDark ? Colors.white.withOpacity(0.60) : const Color(0xff78909A);
+    final Color cardColor =
+    isDark ? const Color(0xff1D292D) : Colors.white;
+    final Color borderColor =
+    isDark ? Colors.white.withOpacity(0.12) : const Color(0xffE2EEEE);
 
     return Scaffold(
       body: SafeArea(
@@ -32,11 +51,9 @@ class GrowthReportScreen extends StatelessWidget {
           textDirection: TextDirection.rtl,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final double width = constraints.maxWidth;
-              final bool isVerySmall = width < 390;
-              final bool isTablet = width >= 600;
-
-              final double horizontalPadding = isVerySmall
+              final bool isTablet = constraints.maxWidth >= 600;
+              final double horizontalPadding =
+              constraints.maxWidth < 390
                   ? 14
                   : isTablet
                   ? 36
@@ -54,9 +71,7 @@ class GrowthReportScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // =========================
                         // Header
-                        // =========================
                         SizedBox(
                           height: 48,
                           child: Stack(
@@ -73,40 +88,15 @@ class GrowthReportScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-
                               Align(
                                 alignment:
                                 AlignmentDirectional.centerStart,
-                                child: Material(
-                                  color: Colors.white,
-                                  borderRadius:
-                                  BorderRadius.circular(12),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                    },
-                                    borderRadius:
-                                    BorderRadius.circular(12),
-                                    child: Container(
-                                      width: 44,
-                                      height: 44,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius:
-                                        BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: textColor
-                                              .withOpacity(0.12),
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        Icons
-                                            .arrow_back_ios_new_rounded,
-                                        size: 19,
-                                        color: textColor,
-                                      ),
-                                    ),
+                                child: IconButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  icon: Icon(
+                                    Icons.arrow_back_ios_new_rounded,
+                                    color: textColor,
+                                    size: 22,
                                   ),
                                 ),
                               ),
@@ -114,55 +104,27 @@ class GrowthReportScreen extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
 
-                        Padding(
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(
-                            'متابعة نمو $childName خلال الفترة المحددة',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: secondaryTextColor,
-                              fontWeight: FontWeight.w500,
-                            ),
+                        Text(
+                          'متابعة نمو $childName خلال الفترة المحددة',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: secondaryTextColor,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
 
                         const SizedBox(height: 24),
 
-                        // =========================
-                        // Period
-                        // =========================
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: textColor.withOpacity(0.10),
-                            ),
-                          ),
-                          child: Row(
+                        // Report period
+                        _card(
+                          cardColor,
+                          borderColor,
+                          Row(
                             children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color:
-                                  primaryColor.withOpacity(0.10),
-                                  borderRadius:
-                                  BorderRadius.circular(14),
-                                ),
-                                child: Icon(
-                                  Icons.date_range_rounded,
-                                  color: primaryColor,
-                                ),
-                              ),
-
+                              _icon(Icons.date_range_rounded, primaryColor),
                               const SizedBox(width: 12),
-
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment:
@@ -172,20 +134,16 @@ class GrowthReportScreen extends StatelessWidget {
                                       'فترة التقرير',
                                       style: TextStyle(
                                         fontSize: 15,
-                                        fontWeight:
-                                        FontWeight.bold,
+                                        fontWeight: FontWeight.bold,
                                         color: textColor,
                                       ),
                                     ),
-
                                     const SizedBox(height: 5),
-
                                     Text(
                                       '${formatDate(startDate)} - ${formatDate(endDate)}',
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color:
-                                        secondaryTextColor,
+                                        color: secondaryTextColor,
                                       ),
                                     ),
                                   ],
@@ -208,81 +166,42 @@ class GrowthReportScreen extends StatelessWidget {
 
                         const SizedBox(height: 14),
 
-                        // =========================
-                        // Summary
-                        // =========================
-                        LayoutBuilder(
-                          builder: (context, innerConstraints) {
-                            if (isVerySmall) {
-                              return Column(
-                                children: [
-                                  _summaryCard(
-                                    context,
-                                    icon: Icons.height_rounded,
-                                    title: 'الطول الحالي',
-                                    value: '118 سم',
-                                  ),
-
-                                  const SizedBox(height: 12),
-
-                                  _summaryCard(
-                                    context,
-                                    icon: Icons
-                                        .monitor_weight_outlined,
-                                    title: 'الوزن الحالي',
-                                    value: '22 كجم',
-                                  ),
-
-                                  const SizedBox(height: 12),
-
-                                  _summaryCard(
-                                    context,
-                                    icon:
-                                    Icons.calculate_outlined,
-                                    title: 'مؤشر كتلة الجسم',
-                                    value: '15.8',
-                                  ),
-                                ],
-                              );
-                            }
-
-                            return Row(
+                        // Empty state
+                        _card(
+                          cardColor,
+                          borderColor,
+                          SizedBox(
+                            width: double.infinity,
+                            child: Column(
                               children: [
-                                Expanded(
-                                  child: _summaryCard(
-                                    context,
-                                    icon: Icons.height_rounded,
-                                    title: 'الطول الحالي',
-                                    value: '118 سم',
+                                Icon(
+                                  Icons.monitor_weight_outlined,
+                                  size: 52,
+                                  color: primaryColor,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'لا توجد بيانات نمو للعرض',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: textColor,
                                   ),
                                 ),
-
-                                const SizedBox(width: 10),
-
-                                Expanded(
-                                  child: _summaryCard(
-                                    context,
-                                    icon: Icons
-                                        .monitor_weight_outlined,
-                                    title: 'الوزن الحالي',
-                                    value: '22 كجم',
-                                  ),
-                                ),
-
-                                const SizedBox(width: 10),
-
-                                Expanded(
-                                  child: _summaryCard(
-                                    context,
-                                    icon:
-                                    Icons.calculate_outlined,
-                                    title: 'مؤشر كتلة الجسم',
-                                    value: '15.8',
+                                const SizedBox(height: 8),
+                                Text(
+                                  'ستظهر قياسات الطول والوزن ومؤشر كتلة الجسم بعد جلب القياسات المسجلة للطفل خلال الفترة المحددة.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    height: 1.7,
+                                    color: secondaryTextColor,
                                   ),
                                 ),
                               ],
-                            );
-                          },
+                            ),
+                          ),
                         ),
 
                         const SizedBox(height: 24),
@@ -298,72 +217,122 @@ class GrowthReportScreen extends StatelessWidget {
 
                         const SizedBox(height: 14),
 
-                        _growthItem(
-                          context,
+                        _detailCard(
                           icon: Icons.height_rounded,
                           title: 'تغير الطول',
                           description:
-                          'يعرض هذا القسم تغير الطول المسجل خلال الفترة المحددة.',
+                          'ستظهر القياسات المسجلة وتغير الطول بعد توفر البيانات.',
+                          primaryColor: primaryColor,
+                          cardColor: cardColor,
+                          borderColor: borderColor,
+                          textColor: textColor,
+                          secondaryTextColor: secondaryTextColor,
                         ),
 
                         const SizedBox(height: 12),
 
-                        _growthItem(
-                          context,
+                        _detailCard(
                           icon: Icons.monitor_weight_outlined,
                           title: 'تغير الوزن',
                           description:
-                          'يعرض هذا القسم تغير الوزن المسجل خلال الفترة المحددة.',
+                          'ستظهر قياسات الوزن المسجلة خلال الفترة المحددة.',
+                          primaryColor: primaryColor,
+                          cardColor: cardColor,
+                          borderColor: borderColor,
+                          textColor: textColor,
+                          secondaryTextColor: secondaryTextColor,
                         ),
 
                         const SizedBox(height: 12),
 
-                        _growthItem(
-                          context,
+                        _detailCard(
                           icon: Icons.calculate_outlined,
                           title: 'مؤشر كتلة الجسم',
                           description:
-                          'يتم حساب مؤشر كتلة الجسم بناءً على الطول والوزن المسجلين.',
+                          'سيتم عرض المؤشر عند توفر قياسات الطول والوزن اللازمة لحسابه.',
+                          primaryColor: primaryColor,
+                          cardColor: cardColor,
+                          borderColor: borderColor,
+                          textColor: textColor,
+                          secondaryTextColor: secondaryTextColor,
                         ),
 
                         const SizedBox(height: 24),
 
-                        // =========================
                         // Educational note
-                        // =========================
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color:
-                            primaryColor.withOpacity(0.08),
-                            borderRadius:
-                            BorderRadius.circular(15),
-                          ),
-                          child: Row(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        _card(
+                          cardColor,
+                          borderColor,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Icon(
                                 Icons.info_outline_rounded,
                                 color: primaryColor,
                                 size: 22,
                               ),
-
-                              const SizedBox(width: 8),
-
+                              const SizedBox(width: 9),
                               Expanded(
                                 child: Text(
-                                  'هذا التقرير مخصص للمتابعة والتنظيم فقط، ولا يقدم تشخيصًا طبيًا أو تقييمًا للنمو.',
+                                  'هذا التقرير مخصص للمتابعة والتنظيم. لا يُعد وحده تشخيصًا طبيًا أو تقييمًا مكتملًا لنمو الطفل، وينبغي تفسير القياسات وفق عمر الطفل وتوجيهات المختص.',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    height: 1.6,
-                                    color:
-                                    secondaryTextColor,
+                                    height: 1.7,
+                                    color: secondaryTextColor,
                                   ),
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Save report - pending Laravel API
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              _showMessage(
+                                context,
+                                'حفظ التقرير غير متاح حاليًا. سيتفعّل بعد ربط Laravel API.',
+                              );
+                            },
+                            icon: const Icon(Icons.save_outlined),
+                            label: const Text(
+                              'حفظ التقرير',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // PDF export - pending implementation
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              _showMessage(
+                                context,
+                                'تنزيل PDF غير متاح حاليًا. لم يتم إنشاء ملف بعد.',
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.picture_as_pdf_outlined,
+                            ),
+                            label: const Text(
+                              'تنزيل PDF',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
 
@@ -380,113 +349,52 @@ class GrowthReportScreen extends StatelessWidget {
     );
   }
 
-  Widget _summaryCard(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required String value,
-      }) {
-    final ThemeData theme = Theme.of(context);
-    final Color primaryColor = theme.primaryColor;
-    final Color textColor = theme.colorScheme.onSurface;
-
+  Widget _card(Color cardColor, Color borderColor, Widget child) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(17),
-        border: Border.all(
-          color: textColor.withOpacity(0.10),
-        ),
+        color: cardColor,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: borderColor),
       ),
-      child: Column(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(
-              icon,
-              color: primaryColor,
-              size: 24,
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          Text(
-            value,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: textColor,
-            ),
-          ),
-
-          const SizedBox(height: 4),
-
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: textColor.withOpacity(0.60),
-            ),
-          ),
-        ],
-      ),
+      child: child,
     );
   }
 
-  Widget _growthItem(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required String description,
-      }) {
-    final ThemeData theme = Theme.of(context);
-    final Color primaryColor = theme.primaryColor;
-    final Color textColor = theme.colorScheme.onSurface;
-
+  Widget _icon(IconData icon, Color primaryColor) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(15),
+      width: 48,
+      height: 48,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(17),
-        border: Border.all(
-          color: textColor.withOpacity(0.10),
-        ),
+        color: primaryColor.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(14),
       ),
-      child: Row(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+      child: Icon(icon, color: primaryColor, size: 25),
+    );
+  }
+
+  Widget _detailCard({
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color primaryColor,
+    required Color cardColor,
+    required Color borderColor,
+    required Color textColor,
+    required Color secondaryTextColor,
+  }) {
+    return _card(
+      cardColor,
+      borderColor,
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(
-              icon,
-              color: primaryColor,
-              size: 24,
-            ),
-          ),
-
+          _icon(icon, primaryColor),
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
@@ -496,16 +404,13 @@ class GrowthReportScreen extends StatelessWidget {
                     color: textColor,
                   ),
                 ),
-
-                const SizedBox(height: 5),
-
+                const SizedBox(height: 6),
                 Text(
                   description,
                   style: TextStyle(
                     fontSize: 12.5,
-                    height: 1.6,
-                    color:
-                    textColor.withOpacity(0.60),
+                    height: 1.7,
+                    color: secondaryTextColor,
                   ),
                 ),
               ],
